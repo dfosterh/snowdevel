@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script_client">
+    <sys_script_client action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <applies_extended>false</applies_extended>
+        <condition/>
+        <description/>
+        <field>application</field>
+        <global>true</global>
+        <isolate_script>true</isolate_script>
+        <messages/>
+        <name>SnowDevelReportCollisions</name>
+        <order/>
+        <script><![CDATA[function onLoad() {
+	var ga = new GlideAjax('SnowDevelAJAX');
+	ga.addParam('sysparm_name', 'getCollisionsByUpdateSet');
+	ga.addParam('sysparm_updateSetId', g_form.getUniqueValue());
+	ga.getXML(displayConflicts);
+
+	function displayConflicts(response) {
+		var answer = response.responseXML.documentElement.getAttribute('answer');
+		var confl = JSON.parse(answer);
+
+		if(confl.conflicts.length == 0 && confl.issues.length == 0) {
+			g_form.addInfoMessage('No conflicts found In Progress nor Complete');
+		}
+		else {
+			if(confl.conflicts.length > 0) {
+				g_form.addErrorMessage(constructMessage('Beware! There are later open update dates for these objects:', confl.conflicts));
+			}
+
+			if(confl.issues.length > 0) {
+				g_form.addInfoMessage(constructMessage('Note that these objects are also in update sets not yet ignored nore released:', confl.issues));
+			}
+		}
+	}
+
+	var constructMessage = function(header, results) {
+		var msg = header;
+		for(i = 0; i < results.length; i++) {
+			msg += '<li>' + results[i].name + ' IS IN <a target=_blank href=/nav_to.do?uri=%2Fsys_update_set.do%3Fsys_id%3D' + results[i].updateSetId + '>' + results[i].updateSet + '</a></li>';
+		}
+
+		return msg;
+	};
+}]]></script>
+        <sys_class_name>sys_script_client</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2020-05-03 03:17:27</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>be1a69e5dbe418106c10dbdb5e961901</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>SnowDevelReportCollisions</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="SnowDevel" source="x_thn_snowdevel">e2b2ada1dbe418106c10dbdb5e96197e</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="SnowDevel">e2b2ada1dbe418106c10dbdb5e96197e</sys_scope>
+        <sys_update_name>sys_script_client_be1a69e5dbe418106c10dbdb5e961901</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2020-05-04 22:58:35</sys_updated_on>
+        <table>sys_update_set</table>
+        <type>onLoad</type>
+        <ui_type>0</ui_type>
+        <view/>
+    </sys_script_client>
+</record_update>
